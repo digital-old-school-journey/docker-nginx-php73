@@ -1,0 +1,34 @@
+version: '3'
+services:
+  app-php:
+    build: './php73'
+    container_name: "app-php"
+    networks: 
+      - api_network
+    ports:
+      - "9000:9000"
+    restart: always      
+    volumes:
+      - ./www/:/app
+      - ./sessions/:/tmp/
+  app-nginx:
+    image: bitnami/nginx
+    depends_on:
+      - app-php
+    container_name: "app-nginx"
+    networks: 
+      - api_network
+    ports:
+      - "88:8080"
+    restart: always      
+    volumes:
+      - ./nginx/my_vhost.conf:/opt/bitnami/nginx/conf/vhosts/my_vhost.conf:ro
+      - ./logs/:/opt/bitnami/nginx/logs/
+    environment:
+      - "TZ=Asia/Bangkok"
+#    command: >
+#            sh -c "ln -snf /user/share/zoneinfor/$TZ /etc/localtime &&
+#            echo $TZ > /etc/timezone"
+networks: 
+  api_network:
+    driver: bridge
